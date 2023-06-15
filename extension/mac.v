@@ -21,7 +21,7 @@ module mac #(
     output               reset
 );
 
-  wire text_access = code_addr >= STXT_START & code_addr <= STXT_STOP;
+  wire text_access = code_addr >= STXT_START & code_addr <= STXT_STOP & code_en;
   wire data_access = data_addr >= SDATA_START & data_addr <= SDATA_STOP & data_en;
   wire secured_section_access = text_access | data_access;
 

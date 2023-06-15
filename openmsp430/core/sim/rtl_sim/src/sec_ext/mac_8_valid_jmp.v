@@ -33,8 +33,7 @@ initial
    
       @(r15==16'h5545);
 
-      @(r15==16'h5445);
-      $display("reset entered");
+      repeat(25) @(posedge mclk);
 
       stimulus_done = 1;
       @(negedge mclk)

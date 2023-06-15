@@ -455,7 +455,7 @@ top #(
 
 // INPUTs
     .clk               (mclk),
-    .pc                (dut.frontend_0.pc),
+    .pc                (inst_pc),
     .data_en           (dut.eu_mb_en),
     .code_en           (dut.eu_mb_en),
     .code_wr           (|dut.eu_mb_wr),

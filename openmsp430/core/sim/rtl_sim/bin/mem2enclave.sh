@@ -16,8 +16,8 @@ DMEM_SIZE=${DMEM_MODE%_*}
 DMEM_SIZE=${DMEM_SIZE##*_}
 
 # Convert physical addresses to logical addresses
-start_address=$((16#$start_address + 0x10002 - $PMEM_SIZE * 1024))
-stop_address=$((16#$stop_address + 0x10000 - $PMEM_SIZE * 1024))
+start_address=$((16#$start_address + 0x10000 - $PMEM_SIZE * 1024))
+stop_address=$((16#$stop_address + 0x10000 - 2 - $PMEM_SIZE * 1024))
 
 start_daddress=$(($1 * 2 +0x200))
 stop_daddress=$(($2 * 2 +0x200 -2))

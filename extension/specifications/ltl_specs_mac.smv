@@ -6,7 +6,7 @@
     SDATA_START := 0uh16_0500;
     SDATA_STOP := 0uh16_0C00;
 
-    text_accessed := "code_addr" >= STXT_START & "code_addr" <= STXT_STOP;
+    text_accessed := "code_addr" >= STXT_START & "code_addr" <= STXT_STOP & "code_en";
     data_accessed := "data_addr" >= SDATA_START & "data_addr" <= SDATA_STOP & "data_en";
 
     trusted_code_executed := "pc" >= STXT_START & "pc" <= STXT_STOP;
