@@ -1,0 +1,8 @@
+scripts/log
+openmsp430/core/sim/rtl_sim/run/log
+scripts/build-verif
+verification-tools/verilog2smv-1.1.3
+verification-tools/NuSMV-2.6.0-Linux
+verification-tools/nusmv_counterexample_visualizer
+openmsp430/core/sim/rtl_sim/run
+openmsp430/core/bench/verilog/enclave_info.v
