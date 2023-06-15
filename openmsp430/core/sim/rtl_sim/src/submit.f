@@ -62,3 +62,12 @@
 //../../../rtl/verilog/periph/omsp_uart.v
 ../../../rtl/verilog/periph/template_periph_8b.v
 ../../../rtl/verilog/periph/template_periph_16b.v
+
+
+//=============================================================================
+// Security Extension
+//=============================================================================
+
++incdir+../../../../../extension/
+../../../../../extension/top.v
+../../../../../extension/mac.v

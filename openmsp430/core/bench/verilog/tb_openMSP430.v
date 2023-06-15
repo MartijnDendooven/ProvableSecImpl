@@ -36,6 +36,7 @@
 // $LastChangedDate: 2015-07-15 22:59:52 +0200 (Wed, 15 Jul 2015) $
 //----------------------------------------------------------------------------
 `include "timescale.v"
+`include "enclave_info.v"
 `ifdef OMSP_NO_INCLUDE
 `else
 `include "openMSP430_defines.v"
@@ -200,12 +201,15 @@ wire    [8*32-1:0] inst_full;
 wire        [31:0] inst_number;
 wire        [15:0] inst_pc;
 wire    [8*32-1:0] inst_short;
+reg                stop = 0;
 
 // Testbench variables
 integer            tb_idx;
 integer            tmp_seed;
 integer            error;
 reg                stimulus_done;
+reg       [32-1:0] cycle_counter;
+reg                counter_en;
 
 
 //
@@ -232,8 +236,7 @@ reg                stimulus_done;
 initial
   begin
      // Initialize data memory
-     for (tb_idx=0; tb_idx < `DMEM_SIZE/2; tb_idx=tb_idx+1)
-       dmem_0.mem[tb_idx] = 16'h0000;
+     #10 $readmemh("./dmem.mem", dmem_0.mem);
 
      // Initialize program memory
      #10 $readmemh("./pmem.mem", pmem_0.mem);
@@ -425,10 +428,39 @@ openMSP430 dut (
     .nmi               (nmi),                  // Non-maskable interrupt (asynchronous)
     .per_dout          (per_dout),             // Peripheral data output
     .pmem_dout         (pmem_dout),            // Program Memory data output
-    .reset_n           (reset_n),              // Reset Pin (low active, asynchronous)
+    .reset_n           (reset_n & ~security_rst),              // Reset Pin (low active, asynchronous)
     .scan_enable       (scan_enable),          // ASIC ONLY: Scan enable (active during scan shifting)
     .scan_mode         (scan_mode),            // ASIC ONLY: Scan mode
     .wkup              (|wkup_in)              // ASIC ONLY: System Wake-up (asynchronous)
+);
+
+//
+// Security extension
+//----------------------------------
+reg security_rst = 1'b0;
+wire security_rst_sig;
+always @(posedge mclk) begin
+security_rst <= security_rst_sig;
+end
+
+top #(
+    .STXT_START (`STXT_START),
+    .STXT_STOP  (`STXT_STOP),
+    .SDATA_START(`SDATA_START),
+    .SDATA_STOP (`SDATA_STOP)
+) sec_ext (
+
+// OUTPUTs
+    .reset             (security_rst_sig),
+
+// INPUTs
+    .clk               (mclk),
+    .pc                (dut.frontend_0.pc),
+    .data_en           (dut.eu_mb_en),
+    .code_en           (dut.eu_mb_en),
+    .code_wr           (|dut.eu_mb_wr),
+    .data_addr         (dut.eu_mab),
+    .code_addr         (dut.eu_mab)
 );
 
 //
@@ -722,7 +754,7 @@ initial // Timeout
 initial // Normal end of test
   begin
      @(negedge stimulus_done);
-     wait(inst_pc=='hffff);
+     wait(inst_pc=='hffff | stop);
 
      $display(" ===============================================");
      if ((dma_rd_error!=0) || (dma_wr_error!=0))

@@ -1,0 +1,33 @@
+-- TEXT_SECTION
+    STXT_START := 0uh16_A000;
+    STXT_STOP := 0uh16_A400;
+
+-- DATA_SECTION
+    SDATA_START := 0uh16_0500;
+    SDATA_STOP := 0uh16_0C00;
+
+    text_accessed := "data_addr" >= STXT_START & "data_addr" < STXT_STOP & "data_en";--this latter wasnt here
+    data_accessed := "data_addr" >= SDATA_START & "data_addr" < SDATA_STOP & "data_en";
+
+    trusted_code_executed := "pc" >= STXT_START & "pc" < STXT_STOP;
+
+    trusted_code_continued := "pc" > STXT_START & "pc" < STXT_STOP;
+    invalid_prev := "prev_pc" < STXT_START | "prev_pc" >= STXT_STOP;
+    
+-- Premisses specifications---
+
+-- Protected section are defined correctly
+LTLSPEC NAME valid_text_section := G (STXT_START<=STXT_STOP)
+LTLSPEC NAME valid_data_section := G (SDATA_START<=SDATA_STOP)
+LTLSPEC NAME no_section_overlap := G (SDATA_START>STXT_STOP | SDATA_STOP <STXT_START)
+
+-- Disallow access to text and data section when trusted code is not executed
+LTLSPEC G (text_accessed & !trusted_code_executed -> "reset") --1
+LTLSPEC G (data_accessed & !trusted_code_executed -> "reset") --2
+LTLSPEC G (text_accessed & trusted_code_executed & "data_wr"-> "reset") --3
+
+-- Disallow jump to non entry point of text section
+LTLSPEC G (trusted_code_continued & invalid_prev -> "reset")    --4
+
+-- Only reset when violation is detected   
+LTLSPEC G ((trusted_code_continued & Y(invalid_prev)) | (text_accessed & trusted_code_executed & "data_wr") | (data_accessed & !trusted_code_executed) | (text_accessed & !trusted_code_executed) <-> "reset") 

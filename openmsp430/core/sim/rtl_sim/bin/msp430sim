@@ -185,6 +185,16 @@ echo "Compile, link & generate IHEX file (Program Memory: $pmemsize B, Data Memo
 echo "Convert IHEX file to Verilog MEMH format..."
 ../bin/ihex2mem.tcl -ihex pmem.ihex -out pmem.mem -mem_size $pmemsize
 
+# Generate Data memory file
+echo "Generate Data memory..."
+secretstart=0x20 # inclusive
+secretstop=0x24  # exclusive
+../bin/gen_dmem.sh $dmemsize $secretstart $secretstop
+
+# Generate Enclave section
+echo "Extract Enclave addresses..."
+../bin/mem2enclave.sh $secretstart $secretstop
+
 # Start verilog simulation
 echo "Start Verilog simulation..."
 ../bin/rtlsim.sh    stimulus.v pmem.mem $submitfile $seed $dma_verif

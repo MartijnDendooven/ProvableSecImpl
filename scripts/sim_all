@@ -1,0 +1,4 @@
+#!/bin/bash
+cd ../openmsp430/core/sim/rtl_sim/run/
+ ./run_all
+cd -

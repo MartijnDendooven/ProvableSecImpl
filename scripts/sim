@@ -1,0 +1,96 @@
+#!/bin/bash
+
+error() {
+  echo "USAGE	 : sim <test name> [-v]"
+  echo "Example	 : sim two-op_mov -v"
+  exit 1
+}
+count=0
+OMSP_NODUMP=1
+MSPGCC_PFX=msp430
+OMSP_SIMULATOR=iverilog
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    -*)
+      getopts 'v' OPTION;
+      case "$OPTION" in
+        v)
+          OMSP_NODUMP=0
+          ;;
+        ?)
+          echo "ERROR	 : Wrong flag"
+          error
+          ;;
+      esac
+      shift
+      ;;
+    *)
+      count=$((count+1))
+      if [ $count -gt 2 ]; then
+        echo "ERROR	 : too many arguments"
+        error
+      fi
+      testname="$1"
+      shift
+      ;;
+  esac
+done
+
+if [ $count == 0 ]; then
+  echo "ERROR	 : missing argument"
+  error
+fi
+
+asmfile=../openmsp430/core/sim/rtl_sim/src/$testname.s43;
+verfile=../openmsp430/core/sim/rtl_sim/src/$testname.v;
+
+if [ ! -e "$asmfile" -o ! -e "$verfile" ]; then
+  echo "test file $testname doesn't exist"
+  directory="../openmsp430/core/sim/rtl_sim/src/"
+  files=()
+  for file in "$directory"/*.s43; do
+    if [ -f "${file%.s43}.v" ]; then
+      files+=("$(basename "$file" .${file##*.})")
+    fi
+  done
+  directory="../openmsp430/core/sim/rtl_sim/src/sec_ext"
+  secfiles=()
+  for file in "$directory"/*.s43; do
+    if [ -f "${file%.s43}.v" ]; then
+      secfiles+=("sec_ext/$(basename "$file" .${file##*.})")
+    fi
+  done
+  echo "Available tests:"
+  size=$((( $(tput cols) / 2) -8 ))
+  hyps=$(printf '%*s' "$size" | tr ' ' '-')
+  echo " $hyps DEFAULT TEST $hyps "
+  echo " ${files[@]/%/$'  \n'}" | column
+  size=$((( $(tput cols) / 2) -14 ))
+  hyps=$(printf '%*s' "$size" | tr ' ' '-')
+  echo " $hyps SECURITY EXTENSION TESTS $hyps "
+  echo " ${secfiles[@]/%/$'  \n'}" | column
+  exit 1
+fi
+
+export OMSP_NODUMP
+export MSPGCC_PFX
+export OMSP_SIMULATOR
+
+rm -rf cov_work
+cd ../openmsp430/core/sim/rtl_sim/run
+../bin/msp430sim $testname -no_dma #Only testcases without DMA possible
+cd -
+if [[ $testname == *"/"* ]]; then
+    prefix=${testname%/*}            # Get the portion before the last slash
+    suffix=${testname##*/}           # Get the portion after the last slash
+    trimmed_suffix=${suffix%%_*}         # Trim everything after the first underscore in the suffix
+
+    wavefile="$prefix/$trimmed_suffix"   # Combine the prefix and trimmed suffix
+else
+    wavefile=${testname%%_*}         # If there is no slash, keep the input string as it is
+fi
+if [ $OMSP_NODUMP == 0 ]; then
+  echo "Opening the GUI"
+  gtkwave ../openmsp430/core/sim/rtl_sim/run/tb_openMSP430.vcd ../openmsp430/core/sim/rtl_sim/run/$wavefile.gtkw
+fi

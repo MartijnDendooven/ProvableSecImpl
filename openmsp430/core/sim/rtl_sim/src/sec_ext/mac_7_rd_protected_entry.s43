@@ -1,0 +1,65 @@
+.include "pmem_defs.asm"
+
+.global main
+
+main:
+        mov      #0,R3                    ;  1 cycle
+        mov      0(R4),0(R4)              ;  6 cycles, 5 in simulation
+        mov      @R4,0(R4)                ;  5 cycles
+        bic      #0,2(R4)                 ;  4 cycles
+        jmp      $+2                      ;  2 cycles
+        bic      #0,R5                    ;  1 cycle
+        
+        mov     #0x5445, r15              ;  Set checkpoint
+                
+        mov      &0xF020, r14               
+        mov      @r14, &DMEM_220          ;  read from protected program memory
+                                          ;  this attack doesn't work yet
+
+enclave_start: 
+        mov      #0,R3                    ;  1 cycle
+        mov      0(R4),0(R4)              ;  6 cycles, 5 in simulation
+        mov      @R4,0(R4)                ;  5 cycles
+        bic      #0,2(R4)                 ;  4 cycles
+        jmp      $+2                      ;  2 cycles
+        bic      #0,R5                    ;  1 cycle
+
+        mov      #0x5545, r15             ;  Set checkpoint
+
+enclave_stop:
+        
+        mov      #0,R3                    ;  1 cycle
+        mov      0(R4),0(R4)              ;  6 cycles, 5 in simulation
+        mov      @R4,0(R4)                ;  5 cycles
+        bic      #0,2(R4)                 ;  4 cycles
+        jmp      $+2                      ;  2 cycles
+        bic      #0,R5                    ;  1 cycle
+
+
+        
+        mov      #0x5354, r15             ;  Set checkpoint        
+
+end_of_test:
+	nop
+	br #0xffff
+
+
+        /* ----------------------         INTERRUPT VECTORS  --------------- */
+
+.section .vectors, "a"
+.word end_of_test  ; Interrupt  0 (lowest priority)    <unused>
+.word end_of_test  ; Interrupt  1                      <unused>
+.word end_of_test  ; Interrupt  2                      <unused>
+.word end_of_test  ; Interrupt  3                      <unused>
+.word end_of_test  ; Interrupt  4                      <unused>
+.word end_of_test  ; Interrupt  5                      <unused>
+.word end_of_test  ; Interrupt  6                      <unused>
+.word end_of_test  ; Interrupt  7                      <unused>
+.word end_of_test  ; Interrupt  8                      <unused>
+.word end_of_test  ; Interrupt  9                      <unused>
+.word end_of_test  ; Interrupt 10                      <unused>
+.word end_of_test  ; Interrupt 11                      <unused>
+.word end_of_test  ; Interrupt 12                      <unused>
+.word end_of_test  ; Interrupt 13                      <unused>
+.word end_of_test  ; Interrupt 14                      NMI
+.word main         ; Interrupt 15 (highest priority)   RESET

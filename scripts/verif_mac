@@ -1,0 +1,35 @@
+#!/bin/bash
+rm -rf build-verif
+mkdir -p build-verif
+
+# Copy Verilog source code to temp directory
+cp ../openmsp430/core/rtl/verilog/openMSP430_undefines.v ./build-verif/
+cp ../openmsp430/core/rtl/verilog/openMSP430_defines.v ./build-verif/
+cp ../extension/*.v ./build-verif/
+
+# Specification
+cp ../extension/specifications/ltl_specs_mac.smv ./build-verif
+
+cd ../verification-tools/verilog2smv-1.1.3/
+./verilog2smv.sh ../../scripts/build-verif/wrapper.v ../../scripts/build-verif/generated.smv wrapper
+cd -
+
+#sed -i "s/IVAR/VAR/g" ./build-verif/generated.smv # Hacky here since IVAR doesnt work properly
+echo '#include "ltl_specs_mac.smv"' >> ./build-verif/generated.smv
+
+./../verification-tools/NuSMV-2.6.0-Linux/bin/NuSMV -pre cpp ./build-verif/generated.smv | tee ./build-verif/NuSMV_output.txt
+
+sed -i 's/\"//g' ./build-verif/NuSMV_output.txt
+
+while getopts 'v' OPTION; do
+  case "$OPTION" in
+    v)
+      echo "Opening the GUI"
+      java -jar ../verification-tools/nusmv_counterexample_visualizer/jars/visualizer-gui.jar ./build-verif/NuSMV_output.txt;;
+    ?)
+      echo "script usage: $(basename \$0) [-v]" >&2
+      exit 1
+      ;;
+  esac
+done
+shift "$(($OPTIND -1))"

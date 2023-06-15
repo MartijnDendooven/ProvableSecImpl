@@ -127,6 +127,14 @@ wire       [15:0] mem27C = dmem_0.mem[62];
 wire       [15:0] mem27E = dmem_0.mem[63];
 
 
+wire       [15:0] memF080 = dmem_0.mem[320];
+
+wire       [15:0] pmemF020 = pmem_0.mem[16];
+wire       [15:0] pmemF042 = pmem_0.mem[33];
+wire       [15:0] pmemF080 = pmem_0.mem[64];
+
+
+
 // Interrupt vectors
 //======================
 
