@@ -8,8 +8,8 @@ The code is divided in multiple branches.
 > > [log_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/log_mac_dev) contains the memory access control protection using logical addresses. This version has been evaluated in the master's thesis.
 > > > [log_mac](https://github.com/MartijnDendooven/ProvableSecImpl/tree/log_mac) solves the know issues that were discovered in [log_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/log_mac_dev).
 > > 
-> > [phy_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/log_phy_dev) contains the memory access control protection using logical addresses. This version has been evaluated in the master's thesis.
-> > > [phy_mac](https://github.com/MartijnDendooven/ProvableSecImpl/tree/log_phy) solves the know issues that were discovered in [phy_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/phy_mac_dev).
+> > [phy_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/phy_mac_dev) contains the memory access control protection using logical addresses. This version has been evaluated in the master's thesis.
+> > > [phy_mac](https://github.com/MartijnDendooven/ProvableSecImpl/tree/phy_mac) solves the know issues that were discovered in [phy_mac_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/phy_mac_dev).
 > > 
 > > [irq_dev](https://github.com/MartijnDendooven/ProvableSecImpl/tree/irq_dev) contains the interrupt protection. This version has been evaluated in the master's thesis.
 > > > [irq_rtl](https://github.com/MartijnDendooven/ProvableSecImpl/tree/irq_rtl)  allows to simulate the issue regarding RTL verifiction.
